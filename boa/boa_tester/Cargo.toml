@@ -1,0 +1,34 @@
+[package]
+name = "boa_tester"
+description = "ECMA-262 tests runner for the Boa JavaScript engine."
+keywords = ["javascript", "ECMASCript", "compiler", "test262", "tester"]
+categories = ["command-line-utilites"]
+publish = false
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+boa_engine.workspace = true
+boa_gc.workspace = true
+clap = { version = "4.3.0", features = ["derive"] }
+serde = { version = "1.0.163", features = ["derive"] }
+serde_yaml = "0.9.21"
+serde_json = "1.0.96"
+bitflags = "2.3.1"
+regex = "1.8.3"
+once_cell = "1.17.2"
+colored = "2.0.0"
+fxhash = "0.2.1"
+rayon = "1.7.0"
+toml = "0.7.4"
+color-eyre = "0.6.2"
+phf = { version = "0.11.1", features = ["macros"] }
+comfy-table = "6.2.0"
+serde_repr = "0.1.12"
+
+[features]
+default = ["boa_engine/intl", "boa_engine/annex-b"]

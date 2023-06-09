@@ -1,0 +1,27 @@
+[package]
+name = "boa_interner"
+description = "String interner for the Boa JavaScript engine."
+keywords = ["javascript", "js", "string", "interner"]
+categories = ["data-structures", "no-std"]
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[features]
+default = ["std"]
+std = ["once_cell/std"]
+
+[dependencies]
+boa_macros.workspace = true
+boa_gc.workspace = true
+phf = { version = "0.11.1", default-features = false, features = ["macros"] }
+rustc-hash = { version = "1.1.0", default-features = false }
+static_assertions = "1.1.0"
+once_cell = {version = "1.17.2", default-features = false, features = ["critical-section"]}
+indexmap = "1.9.3"
+serde = { version = "1.0.163", features = ["derive"], optional = true }
+arbitrary = { version = "1", features = ["derive"], optional = true }
+hashbrown = { version = "0.13.2", default-features = false, features = ["inline-more"] }

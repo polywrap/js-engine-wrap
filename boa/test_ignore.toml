@@ -1,0 +1,46 @@
+# Not implemented yet:
+flags = []
+
+features = [
+    # Non-implemented features:
+    "json-modules",
+    "SharedArrayBuffer",
+    "resizable-arraybuffer",
+    "Temporal",
+    "ShadowRealm",
+    "FinalizationRegistry",
+    "Atomics",
+    "decorators",
+    "array-grouping",
+    "IsHTMLDDA",
+    "legacy-regexp",
+    "symbols-as-weakmap-keys",
+
+    # Non-implemented Intl features
+    "intl-normative-optional",
+    "Intl.DurationFormat",
+    "Intl.DisplayNames",
+    "Intl.RelativeTimeFormat",
+
+    # Stage 3 proposals
+
+    # https://github.com/tc39/proposal-intl-locale-info
+    "Intl.Locale-info",
+    # https://github.com/tc39/proposal-intl-enumeration
+    "Intl-enumeration",
+    # https://github.com/tc39/proposal-array-from-async
+    "Array.fromAsync",
+    # https://github.com/tc39/proposal-import-attributes
+    "import-assertions",
+
+    # Non-standard
+    "caller",
+
+    # RegExp tests that check individual codepoints.
+    # They are not useful considering the cpu time they waste.
+    "regexp-unicode-property-escapes",
+]
+
+# RegExp tests that check individual codepoints.
+# They are not useful considering the cpu time they waste.
+tests = ["CharacterClassEscapes", "NumberFormat"]

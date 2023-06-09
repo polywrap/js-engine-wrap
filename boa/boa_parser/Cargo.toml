@@ -1,0 +1,29 @@
+[package]
+name = "boa_parser"
+description = "ECMAScript parser for the Boa JavaScript engine."
+keywords = ["javascript", "js", "syntax", "parser"]
+categories = ["parser-implementations", "compilers"]
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+boa_interner.workspace = true
+boa_macros.workspace = true
+boa_ast.workspace = true
+boa_profiler.workspace = true
+boa_icu_provider.workspace = true
+rustc-hash = "1.1.0"
+fast-float = "0.2.0"
+num-traits = "0.2.15"
+bitflags = "2.3.1"
+num-bigint = "0.4.3"
+regress = "0.6.0"
+icu_properties = "1.2.0"
+once_cell = "1.17.2"
+
+[features]
+annex-b = []
