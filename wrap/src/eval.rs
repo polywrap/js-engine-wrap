@@ -52,7 +52,7 @@ mod tests {
     use serde::{Deserialize, Serialize};
     use serde_json::json;
 
-    use crate::eval_and_parse;
+    use crate::{eval_and_parse, eval::GlobalFun};
 
     #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
     pub struct MockType {
@@ -143,11 +143,39 @@ mod tests {
 
     #[test]
     fn eval_global_function() {
-      //TODO: Implement this test
+        use boa_engine::{Context, JsValue, JsResult};
+    
+        // The global function to be registered
+        fn global_fn(_: &JsValue, _args: &[JsValue], _ctx: &mut Context<'_>) -> JsResult<JsValue> {
+            Ok(JsValue::new("global function invoked"))
+        }
+    
+        // Wrap it in a GlobalFun struct
+        let global = GlobalFun {
+            name: "myGlobalFunction".to_string(),
+            function: global_fn,
+        };
+    
+        let src = "myGlobalFunction();";
+    
+        let result = eval_and_parse(src, vec![global]);
+    
+        let result = result.unwrap().unwrap();
+    
+        let expected = json!("global function invoked");
+    
+        assert_eq!(result, expected);
     }
-
+    
     #[test]
     fn eval_undefined_variable() {
-      //TODO: Implement this test
+        let src = "notDefinedVariable;";
+    
+        let result = eval_and_parse(src, vec![]);
+
+        match result {
+            Ok(_) => panic!("Expected error for undefined variable, but didn't get one"),
+            Err(e) => assert!(e.contains("notDefinedVariable is not defined"), "Unexpected error message: {}", e),
+        }
     }
 }
