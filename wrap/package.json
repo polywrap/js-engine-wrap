@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "scripts": {
     "codegen": "npx polywrap codegen",
-    "build": "npx polywrap build",
+    "build": "./build.sh",
     "deploy": "npx polywrap deploy",
     "test": "yarn test:e2e"
   },
