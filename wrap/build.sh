@@ -56,5 +56,5 @@ rm -rf ./bin/strip_module.wasm
 
 # Use wasm-opt to perform the "asyncify" post-processing step over all modules
 export ASYNCIFY_STACK_SIZE=65535
-wasm-opt --asyncify -Os ./bin/snipped_module.wasm -o ./bin/wrap.wasm
+# wasm-opt --asyncify -Os ./bin/snipped_module.wasm -o ./bin/wrap.wasm
 rm -rf ./bin/snipped_module.wasm

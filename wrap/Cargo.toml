@@ -16,6 +16,9 @@ rmp-serde = "1.1.1"
 rmpv = { version = "1.0.0", features = ["with-serde"] }
 getrandom = { version = "=0.2.9", features = ["custom"] }
 
+[dev-dependencies]
+polywrap_client = { version = "0.1.6-beta.3" }
+
 [lib]
 crate-type = ["cdylib"]
 
