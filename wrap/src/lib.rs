@@ -14,19 +14,14 @@ register_custom_getrandom!(custom_getrandom);
 impl ModuleTrait for Module {
     fn eval(args: ArgsEval) -> Result<EvalResult, String> {
         let result = eval_and_parse(&args.src, vec![
-        ]);
+        ])?;
 
-        let result = result?.unwrap();
-
-        let result = EvalResult {
+        Ok(EvalResult {
             value: Some(result),
             error: None
-        };
-
-        Ok(result)
+        })
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -39,7 +34,7 @@ mod tests {
 
     #[test]
     fn sanity() {
-        let (_manifest, module) = load_wrap("/home/nerfzael/dev/web3api/repos/tool2/js-engine-wrap/wrap/bin");
+        let (_manifest, module) = load_wrap("./bin");
 
         let client = get_client_with_module(&module);
 
