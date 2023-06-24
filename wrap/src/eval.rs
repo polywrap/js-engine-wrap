@@ -2,22 +2,25 @@ use boa_engine::{NativeFunction, Context, module::ModuleLoader, native_function:
 use serde_json::Value;
 
 /// Evaluate the given ECMAScript code.
-pub fn eval_and_parse(src: &str, globals: Vec<GlobalFun>) -> Result<Option<Value>, String>  {
-  let loader = &CustomModuleLoader::new().unwrap();
-  let dyn_loader: &dyn ModuleLoader = loader;
+pub fn eval_and_parse(src: &str, globals: Vec<GlobalFun>) -> Result<Value, String>  {
+    let loader = &CustomModuleLoader::new().unwrap();
+    let dyn_loader: &dyn ModuleLoader = loader;
 
-  // Just need to cast to a `ModuleLoader` before passing it to the builder.
-  let mut ctx = &mut Context::builder().module_loader(dyn_loader).build().unwrap();
+    // Just need to cast to a `ModuleLoader` before passing it to the builder.
+    let mut ctx = &mut Context::builder().module_loader(dyn_loader).build().unwrap();
 
-  for global in globals {
-      ctx.register_global_callable(&global.name, 0, NativeFunction::from_fn_ptr(global.function))
-          .unwrap();
-  }
+    for global in globals {
+        ctx.register_global_callable(&global.name, 0, NativeFunction::from_fn_ptr(global.function))
+            .unwrap();
+    }
 
-  let result = ctx.eval(Source::from_bytes(src.as_bytes()));
+    let result = ctx.eval(Source::from_bytes(src.as_bytes()));
 
-  let val = result.map_err(|err| err.to_string())?.to_json(&mut ctx).unwrap();
-  Ok(Some(val))
+    let result = result
+        .and_then(|x| x.to_json(&mut ctx))
+        .map_err(|err| err.to_string());
+
+    result
 }
 
 #[derive(Debug)]
@@ -65,7 +68,7 @@ mod tests {
         
         let result = eval_and_parse(src, vec![]);
 
-        let result = result.unwrap().unwrap();
+        let result = result.unwrap();
 
         let expected = json!(null);
         
@@ -78,7 +81,7 @@ mod tests {
         
         let result = eval_and_parse(src, vec![]);
 
-        let result = result.unwrap().unwrap();
+        let result = result.unwrap();
 
         let expected = json!("Hello world");
         
@@ -91,7 +94,7 @@ mod tests {
           
         let result = eval_and_parse(src, vec![]);
 
-        let result = result.unwrap().unwrap();
+        let result = result.unwrap();
 
         let expected = json!(true);
         
@@ -104,7 +107,7 @@ mod tests {
           
       let result = eval_and_parse(src, vec![]);
 
-      let result = result.unwrap().unwrap();
+      let result = result.unwrap();
 
       let expected = json!(10);
       
@@ -117,7 +120,7 @@ mod tests {
           
       let result = eval_and_parse(src, vec![]);
 
-      let result = result.unwrap().unwrap();
+      let result = result.unwrap();
 
       let expected = json!(123.456);
       
@@ -128,9 +131,9 @@ mod tests {
     fn eval_object() {
         let src = "({ prop: 'Hello world' });".to_string();
 
-        let result: Result<Option<serde_json::Value>, String> = eval_and_parse(&src, vec![]);
+        let result: Result<serde_json::Value, String> = eval_and_parse(&src, vec![]);
 
-        let result = result.unwrap().unwrap();
+        let result = result.unwrap();
 
         let result: MockType = serde_json::from_value(result).unwrap();
 
@@ -160,7 +163,7 @@ mod tests {
     
         let result = eval_and_parse(src, vec![global]);
     
-        let result = result.unwrap().unwrap();
+        let result = result.unwrap();
     
         let expected = json!("global function invoked");
     
