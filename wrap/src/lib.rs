@@ -1,6 +1,8 @@
 mod wrap;
 use boa_engine::{JsValue, JsResult, Context};
-use polywrap_wasm_rs::subinvoke;
+use polywrap_wasm_rs::{subinvoke, wrap_debug_log};
+use serde::{Serialize, Deserialize};
+use serde_json::Value;
 use wrap::*;
 mod eval;
 use eval::{eval_and_parse, GlobalFun};
@@ -17,8 +19,12 @@ impl ModuleTrait for Module {
     fn eval(args: ArgsEval) -> Result<EvalResult, String> {
         let result = eval_and_parse(&args.src, vec![], vec![
             GlobalFun{
-                name: "subinvoke".to_string(),
+                name: "__wrap_subinvoke".to_string(),
                 function: subinvoke
+            },
+            GlobalFun{
+                name: "__wrap_abort".to_string(),
+                function: abort
             }
         ]);
 
@@ -41,8 +47,12 @@ impl ModuleTrait for Module {
     fn eval_with_globals(args: ArgsEvalWithGlobals) -> Result<EvalResult, String> {
         let result = eval_and_parse(&args.src, args.globals, vec![
             GlobalFun{
-                name: "subinvoke".to_string(),
+                name: "__wrap_subinvoke".to_string(),
                 function: subinvoke
+            },
+            GlobalFun{
+                name: "__wrap_abort".to_string(),
+                function: abort
             }
         ]);
 
@@ -63,6 +73,32 @@ impl ModuleTrait for Module {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+struct JsonResult {
+    ok: bool,
+    error: Option<String>,
+    value: Option<Value>
+}
+
+fn js_value_from_value(val: Value, ctx: &mut Context<'_>) -> JsValue {
+    let val = serde_json::to_value(&JsonResult {
+        ok: true,
+        error: None,
+        value: Some(val),
+    }).unwrap();
+
+    JsValue::from_json(&val, ctx).unwrap()
+}
+
+fn js_value_from_error(err: String, ctx: &mut Context<'_>) -> JsValue {
+    let val = serde_json::to_value(&JsonResult {
+        ok: false,
+        error: Some(err),
+        value: None,
+    }).unwrap();
+
+    JsValue::from_json(&val, ctx).unwrap()
+}
 
 fn subinvoke(_: &JsValue, args: &[JsValue], ctx: &mut Context<'_>) -> JsResult<JsValue> {
     let uri = args.get(0).unwrap();
@@ -81,23 +117,26 @@ fn subinvoke(_: &JsValue, args: &[JsValue], ctx: &mut Context<'_>) -> JsResult<J
         args,
     );
 
-    let result = match result {
-        Ok(result) => msgpack_to_json(&result),
-        Err(err) => {
-            serde_json::to_string(&err).unwrap()
-        }
-    };
+    let result = result.and_then(|result| {
+        let result = msgpack_to_json(&result);
 
-    let result = match serde_json::from_str(&result) {
-        Ok(json) => JsValue::from_json(&json, ctx).unwrap(),
-        Err(err) => {
-            let json = serde_json::to_string(&err.to_string()).unwrap();
-            let json = serde_json::from_str(&json).unwrap();
-            JsValue::from_json(&json, ctx).unwrap()
-        }
-    };
+        serde_json::from_str(&result)
+            .map(|json| {
+                js_value_from_value(json, ctx)
+            })
+            .map_err(|e| e.to_string())
+    }).or_else(|err| {
+        Ok(js_value_from_error(err, ctx))
+    });
 
-    Ok(result)
+    result
+}
+
+fn abort(_: &JsValue, args: &[JsValue], ctx: &mut Context<'_>) -> JsResult<JsValue> {
+    let args = args.get(0).unwrap();
+    let args = args.to_json(ctx).unwrap().to_string();
+
+    panic!("{}", args);
 }
 
 pub fn msgpack_to_json(bytes: &[u8]) -> String {
