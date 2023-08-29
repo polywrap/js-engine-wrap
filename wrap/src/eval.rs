@@ -34,6 +34,7 @@ pub fn eval_and_parse(src: &str, global_vars: Vec<GlobalVar>, global_funcs: Vec<
         .and_then(|x| x.to_json(&mut ctx))
         .map_err(|err| err.to_string());
 
+    ctx.run_jobs();
     result
 }
 
