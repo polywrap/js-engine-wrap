@@ -51,6 +51,10 @@ impl ModuleTrait for Module {
                 function: subinvoke
             },
             GlobalFun{
+                name: "__wrap_getImplementations".to_string(),
+                function: get_implementations
+            },
+            GlobalFun{
                 name: "__wrap_abort".to_string(),
                 function: abort
             }
@@ -131,6 +135,20 @@ fn subinvoke(_: &JsValue, args: &[JsValue], ctx: &mut Context<'_>) -> JsResult<J
 
     result
 }
+
+fn get_implementations(_: &JsValue, args: &[JsValue], ctx: &mut Context<'_>) -> JsResult<JsValue> {
+  let uri = args.get(0).unwrap();
+  let uri: String = uri.as_string().unwrap().to_std_string().unwrap();
+
+  let result = polywrap_wasm_rs::get_implementations::wrap_get_implementations(
+      &uri
+  );
+  let result_json = Value::Array(result.into_iter().map(|r| Value::String(r)).collect());
+
+  let result = js_value_from_value(result_json, ctx);
+  JsResult::Ok(result)
+}
+
 
 fn abort(_: &JsValue, args: &[JsValue], ctx: &mut Context<'_>) -> JsResult<JsValue> {
     let args = args.get(0).unwrap();
