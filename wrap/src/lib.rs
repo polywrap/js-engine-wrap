@@ -58,6 +58,10 @@ impl ModuleTrait for Module {
             GlobalFun{
                 name: "__wrap_abort".to_string(),
                 function: abort
+            },
+            GlobalFun{
+                name: "__wrap_debug_log".to_string(),
+                function: debug_log
             }
         ]);
 
@@ -151,12 +155,20 @@ fn get_implementations(_: &JsValue, args: &[JsValue], ctx: &mut Context<'_>) -> 
   JsResult::Ok(result)
 }
 
-
 fn abort(_: &JsValue, args: &[JsValue], ctx: &mut Context<'_>) -> JsResult<JsValue> {
     let args = args.get(0).unwrap();
     let args = args.to_json(ctx).unwrap().to_string();
 
     panic!("{}", args);
+}
+
+fn debug_log(_: &JsValue, args: &[JsValue], ctx: &mut Context<'_>) -> JsResult<JsValue> {
+    let arg = args.get(0).unwrap();
+    let msg: String = arg.as_string().unwrap().to_std_string().unwrap();
+
+    wrap_debug_log(&format!("{}", msg));
+
+    JsResult::Ok(JsValue::Boolean(true))
 }
 
 pub fn msgpack_to_json(bytes: &[u8]) -> String {
