@@ -30,17 +30,18 @@ impl ModuleTrait for Module {
 
         match result {
             Ok(result) => {
+                let result = match result.1 {
+                    Some(result) => {
+                        result
+                    },
+                    None => result.0
+                };
                 Ok(EvalResult {
                     value: Some(result),
                     error: None
                 })
             },
-            Err(err) => {
-                Ok(EvalResult {
-                    value: None,
-                    error: Some(err)
-                })
-            }
+            Err(err) => Err(err)
         }
     }
 
@@ -62,17 +63,18 @@ impl ModuleTrait for Module {
 
         match result {
             Ok(result) => {
+                let result = match result.1 {
+                    Some(result) => {
+                        result
+                    },
+                    None => result.0
+                };
                 Ok(EvalResult {
                     value: Some(result),
                     error: None
                 })
             },
-            Err(err) => {
-                Ok(EvalResult {
-                    value: None,
-                    error: Some(err)
-                })
-            }
+            Err(err) => Err(err)
         }
     }
 }

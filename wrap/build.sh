@@ -58,3 +58,4 @@ rm -rf ./bin/strip_module.wasm
 export ASYNCIFY_STACK_SIZE=65535
 wasm-opt --asyncify -Os ./bin/snipped_module.wasm -o ./bin/wrap.wasm
 rm -rf ./bin/snipped_module.wasm
+cp ./bin/wrap.wasm ./build/wrap.wasm

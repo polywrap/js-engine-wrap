@@ -3,7 +3,7 @@ use serde_json::Value;
 
 use crate::wrap::global_var::GlobalVar;
 
-pub fn eval_and_parse(src: &str, global_vars: Vec<GlobalVar>, global_funcs: Vec<GlobalFun>) -> Result<Value, String>  {
+pub fn eval_and_parse(src: &str, global_vars: Vec<GlobalVar>, global_funcs: Vec<GlobalFun>) -> Result<(Value, Option<Value>), String>  {
     let loader = &CustomModuleLoader::new().unwrap();
     let dyn_loader: &dyn ModuleLoader = loader;
 
@@ -23,6 +23,10 @@ pub fn eval_and_parse(src: &str, global_vars: Vec<GlobalVar>, global_funcs: Vec<
             .unwrap();
     }
 
+    let undefined = JsValue::from_json(&Value::Null, ctx).unwrap();
+    ctx.register_global_property("__async_result", undefined, Attribute::WRITABLE)
+        .unwrap();
+
     for global in global_funcs {
         ctx.register_global_callable(&global.name, 0, NativeFunction::from_fn_ptr(global.function))
             .unwrap();
@@ -35,7 +39,20 @@ pub fn eval_and_parse(src: &str, global_vars: Vec<GlobalVar>, global_funcs: Vec<
         .map_err(|err| err.to_string());
 
     ctx.run_jobs();
-    result
+
+    let async_result = match ctx.global_object().get("__async_result", ctx) {
+        Ok(result) => match result {
+            JsValue::Null => None,
+            _ => Some(result.to_json(ctx).unwrap()),
+        },
+        Err(err) => return Err(err.to_string()),
+    };
+
+    if result.is_ok() {
+        Ok((result.unwrap(), async_result))
+    } else {
+        Err(result.unwrap_err())
+    }
 }
 
 #[derive(Debug)]
