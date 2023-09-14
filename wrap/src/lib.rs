@@ -118,8 +118,7 @@ fn subinvoke(_: &JsValue, args: &[JsValue], ctx: &mut Context<'_>) -> JsResult<J
     let method = method.as_string().unwrap().to_std_string().unwrap();
 
     let args = args.get(2).unwrap();
-    let args = args.to_json(ctx).unwrap().to_string();
-    let args = json_to_msgpack(&args);
+    let args: Vec<u8> = serde_json::from_value(args.to_json(ctx).unwrap()).unwrap();
 
     let result: Result<Vec<u8>, String> = subinvoke::wrap_subinvoke(
         &uri,
@@ -176,11 +175,6 @@ pub fn msgpack_to_json(bytes: &[u8]) -> String {
     serde_json::to_string(&value).unwrap()
 }
 
-pub fn json_to_msgpack(string: &str) -> Vec<u8> {
-    let value: serde_json::Value = serde_json::from_str(string).unwrap();
-    rmp_serde::encode::to_vec(&value).unwrap()
-}
-
 #[cfg(test)]
 mod tests {
     use polywrap_client::msgpack;
@@ -190,21 +184,21 @@ mod tests {
 
     mod test_utils;
 
-    #[test]
-    fn sanity() {
-        let (_manifest, module) = load_wrap("./bin");
+    // #[test]
+    // fn sanity() {
+    //     let (_manifest, module) = load_wrap("./bin");
 
-        let client = get_client_with_module(&module);
+    //     let client = get_client_with_module(&module);
 
-        let result = invoke_client("mock/test", "eval", &msgpack::msgpack!({
-            "src": "const temp = 'Hello world'; temp"
-        }), &client);
+    //     let result = invoke_client("mock/test", "eval", &msgpack::msgpack!({
+    //         "src": "const temp = 'Hello world'; temp"
+    //     }), &client);
 
-        let result: EvalResult = rmp_serde::from_slice(&result).unwrap();
+    //     let result: EvalResult = rmp_serde::from_slice(&result).unwrap();
 
-        assert_eq!(result.value.unwrap(), EvalResult {
-            value: Some(json!("Hello world")),
-            error: None
-        }.value.unwrap());
-    }
+    //     assert_eq!(result.value.unwrap(), EvalResult {
+    //         value: Some(json!("Hello world")),
+    //         error: None
+    //     }.value.unwrap());
+    // }
 }

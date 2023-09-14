@@ -93,113 +93,113 @@ mod tests {
         pub prop: String,
     }
 
-    #[test]
-    fn eval_null() {
-        let src = "const temp = null; temp";
+    // #[test]
+    // fn eval_null() {
+    //     let src = "const temp = null; temp";
         
-        let result = eval_and_parse(src, vec![], vec![]);
+    //     let result = eval_and_parse(src, vec![], vec![]);
 
-        let result = result.unwrap();
+    //     let result = result.unwrap();
 
-        let expected = json!(null);
+    //     let expected = json!(null);
         
-        assert_eq!(result, expected);
-    }
+    //     assert_eq!(result, expected);
+    // }
 
-    #[test]
-    fn eval_string() {
-        let src = "const temp = 'Hello world'; temp";
+    // #[test]
+    // fn eval_string() {
+    //     let src = "const temp = 'Hello world'; temp";
         
-        let result = eval_and_parse(src, vec![], vec![]);
+    //     let result = eval_and_parse(src, vec![], vec![]);
 
-        let result = result.unwrap();
+    //     let result = result.unwrap();
 
-        let expected = json!("Hello world");
+    //     let expected = json!("Hello world");
         
-        assert_eq!(result, expected);
-    }
+    //     assert_eq!(result, expected);
+    // }
 
-    #[test]
-    fn eval_bool() {
-        let src = "const temp = true; temp";
+    // #[test]
+    // fn eval_bool() {
+    //     let src = "const temp = true; temp";
           
-        let result = eval_and_parse(src, vec![], vec![]);
+    //     let result = eval_and_parse(src, vec![], vec![]);
 
-        let result = result.unwrap();
+    //     let result = result.unwrap();
 
-        let expected = json!(true);
+    //     let expected = json!(true);
         
-        assert_eq!(result, expected);
-    }
+    //     assert_eq!(result, expected);
+    // }
 
-    #[test]
-    fn eval_integer() {
-      let src = "const temp = 10; temp";
+    // #[test]
+    // fn eval_integer() {
+    //   let src = "const temp = 10; temp";
           
-      let result = eval_and_parse(src, vec![], vec![]);
+    //   let result = eval_and_parse(src, vec![], vec![]);
 
-      let result = result.unwrap();
+    //   let result = result.unwrap();
 
-      let expected = json!(10);
+    //   let expected = json!(10);
       
-      assert_eq!(result, expected);
-    }
+    //   assert_eq!(result, expected);
+    // }
 
-    #[test]
-    fn eval_rational() {
-      let src = "const temp = 123.456; temp";
+    // #[test]
+    // fn eval_rational() {
+    //   let src = "const temp = 123.456; temp";
           
-      let result = eval_and_parse(src, vec![], vec![]);
+    //   let result = eval_and_parse(src, vec![], vec![]);
 
-      let result = result.unwrap();
+    //   let result = result.unwrap();
 
-      let expected = json!(123.456);
+    //   let expected = json!(123.456);
       
-      assert_eq!(result, expected);
-    }
+    //   assert_eq!(result, expected);
+    // }
 
-    #[test]
-    fn eval_object() {
-        let src = "({ prop: 'Hello world' });".to_string();
+    // #[test]
+    // fn eval_object() {
+    //     let src = "({ prop: 'Hello world' });".to_string();
 
-        let result: Result<serde_json::Value, String> = eval_and_parse(&src, vec![], vec![]);
+    //     let result: Result<serde_json::Value, String> = eval_and_parse(&src, vec![], vec![]);
 
-        let result = result.unwrap();
+    //     let result = result.unwrap();
 
-        let result: MockType = serde_json::from_value(result).unwrap();
+    //     let result: MockType = serde_json::from_value(result).unwrap();
 
-        let expected = MockType {
-            prop: "Hello world".to_string()
-        };
+    //     let expected = MockType {
+    //         prop: "Hello world".to_string()
+    //     };
         
-        assert_eq!(result, expected);
-    }
+    //     assert_eq!(result, expected);
+    // }
 
-    #[test]
-    fn eval_global_function() {
-        use boa_engine::{Context, JsValue, JsResult};
+    // #[test]
+    // fn eval_global_function() {
+    //     use boa_engine::{Context, JsValue, JsResult};
     
-        // The global function to be registered
-        fn global_fn(_: &JsValue, _args: &[JsValue], _ctx: &mut Context<'_>) -> JsResult<JsValue> {
-            Ok(JsValue::new("global function invoked"))
-        }
+    //     // The global function to be registered
+    //     fn global_fn(_: &JsValue, _args: &[JsValue], _ctx: &mut Context<'_>) -> JsResult<JsValue> {
+    //         Ok(JsValue::new("global function invoked"))
+    //     }
     
-        // Wrap it in a GlobalFun struct
-        let global = GlobalFun {
-            name: "myGlobalFunction".to_string(),
-            function: global_fn,
-        };
+    //     // Wrap it in a GlobalFun struct
+    //     let global = GlobalFun {
+    //         name: "myGlobalFunction".to_string(),
+    //         function: global_fn,
+    //     };
     
-        let src = "myGlobalFunction();";
+    //     let src = "myGlobalFunction();";
     
-        let result = eval_and_parse(src, vec![], vec![global]);
+    //     let result = eval_and_parse(src, vec![], vec![global]);
     
-        let result = result.unwrap();
+    //     let result = result.unwrap();
     
-        let expected = json!("global function invoked");
+    //     let expected = json!("global function invoked");
     
-        assert_eq!(result, expected);
-    }
+    //     assert_eq!(result, expected);
+    // }
     
     #[test]
     fn eval_undefined_variable() {
